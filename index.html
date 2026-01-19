@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MD Vinyl Turntable</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            overflow: hidden;
+        }
+
+        .turntable-container {
+            position: relative;
+            width: 360px;
+            height: 360px;
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.05),
+                inset 0 -1px 0 rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 턴테이블 플래터 베이스 */
+        .platter-base {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: linear-gradient(145deg, #1a1a1a, #252525);
+            border-radius: 50%;
+            box-shadow: 
+                0 8px 20px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.03);
+        }
+
+        /* LP 바이닐 레코드 */
+        .record {
+            width: 260px;
+            height: 260px;
+            background: 
+                radial-gradient(circle at 50% 50%, 
+                    #0a0a0a 0%, 
+                    #0f0f0f 18%,
+                    #141414 18.5%,
+                    #0f0f0f 19%,
+                    #0a0a0a 20%,
+                    #141414 20.5%,
+                    #0f0f0f 21%,
+                    #0a0a0a 22%,
+                    #141414 22.5%,
+                    #0f0f0f 23%,
+                    #0a0a0a 24%,
+                    #141414 24.5%,
+                    #0f0f0f 25%,
+                    #0a0a0a 26%,
+                    #0f0f0f 27%,
+                    #141414 28%,
+                    #0a0a0a 100%
+                );
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.05),
+                0 8px 24px rgba(0,0,0,0.5),
+                inset 0 0 20px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 3;
+        }
+
+        .record:hover {
+            transform: scale(1.02);
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.08),
+                0 12px 32px rgba(0,0,0,0.6),
+                inset 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        /* LP 미세 홈 텍스처 레이어 */
+        .record::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: 
+                repeating-radial-gradient(
+                    circle at 50% 50%,
+                    transparent 0px,
+                    transparent 1.5px,
+                    rgba(255,255,255,0.01) 1.5px,
+                    rgba(255,255,255,0.01) 3px
+                );
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* 앨범 커버 라벨 */
+        .album-art {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background-image: url('https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=300&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            border: 5px solid #1a1a1a;
+            box-shadow: 
+                0 4px 12px rgba(0,0,0,0.6),
+                inset 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 4;
+        }
+
+        /* 회전 애니메이션 */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .record.playing {
+            animation: spin 2.8s linear infinite;
+        }
+
+        /* 중앙 스핀들 */
+        .spindle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(145deg, #e6c55a, #c9a944);
+            border-radius: 50%;
+            box-shadow: 
+                0 2px 6px rgba(0,0,0,0.4),
+                inset 0 1px 2px rgba(255,255,255,0.3),
+                inset 0 -1px 2px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+
+        /* 톤암 (Tone Arm) */
+        .tone-arm {
+            position: absolute;
+            top: 40px;
+            right: 35px;
+            width: 12px;
+            height: 140px;
+            background: linear-gradient(to bottom, 
+                #d4af37 0%, 
+                #e8c766 20%, 
+                #c9a944 50%, 
+                #b89b3a 100%
+            );
+            border-radius: 6px;
+            transform-origin: top center;
+            transform: rotate(-35deg);
+            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            z-index: 10;
+            box-shadow: 
+                3px 3px 8px rgba(0,0,0,0.5),
+                inset 1px 1px 2px rgba(255,255,255,0.2),
+                inset -1px -1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* 톤암 헤드쉘 */
+        .tone-arm::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 36px;
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            border-radius: 6px;
+            box-shadow: 
+                2px 2px 6px rgba(0,0,0,0.6),
+                inset 1px 1px 2px rgba(255,255,255,0.05);
+        }
+
+        /* 톤암 바늘 포인트 */
+        .tone-arm::before {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 8px;
+            background: linear-gradient(to bottom, #666, #333);
+            border-radius: 1px;
+            z-index: 1;
+        }
+
+        .tone-arm.active {
+            transform: rotate(22deg);
+        }
+
+        /* 톤암 피봇 베이스 */
+        .tone-arm-base {
+            position: absolute;
+            top: 30px;
+            right: 28px;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(145deg, #3a3a3a, #252525);
+            border-radius: 50%;
+            box-shadow: 
+                0 4px 10px rgba(0,0,0,0.5),
+                inset 0 2px 4px rgba(255,255,255,0.05);
+            z-index: 9;
+        }
+
+        .tone-arm-base::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+        }
+
+        /* 안내 문구 */
+        .hint {
+            position: absolute;
+            bottom: 20px;
+            color: #888;
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .turntable-container:hover .hint {
+            opacity: 0.8;
+        }
+
+        .hint.playing {
+            color: #d4af37;
+        }
+
+        /* 상태 인디케이터 */
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 8px;
+            height: 8px;
+            background: #444;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 10px rgba(68,68,68,0.3),
+                inset 0 1px 2px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.active {
+            background: #d4af37;
+            box-shadow: 
+                0 0 15px rgba(212,175,55,0.6),
+                0 0 30px rgba(212,175,55,0.3),
+                inset 0 1px 2px rgba(255,255,255,0.3);
+        }
+
+        /* 로딩 애니메이션 */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="turntable-container">
+        <div class="status-indicator" id="statusIndicator"></div>
+        <div class="platter-base"></div>
+        <div class="record" id="record">
+            <div class="album-art"></div>
+            <div class="spindle"></div>
+        </div>
+        <div class="tone-arm-base"></div>
+        <div class="tone-arm" id="toneArm"></div>
+        <div class="hint" id="hint">Click to Play</div>
+    </div>
+
+    <!-- 🎵 오디오 플레이어 (URL을 원하는 음악 파일로 변경하세요) -->
+    <audio id="audioPlayer" preload="auto">
+        <!-- 무료 Lo-Fi 음악 샘플 (저작권 Free) -->
+        <source src="https://youtu.be/YtZLsfQw004?si=pQLUmlB2jmVaCT10" type="audio/mpeg">
+        <!-- 다른 음악으로 변경하려면 위 src 속성의 URL만 교체하면 됩니다 -->
+    </audio>
+
+    <script>
+        const record = document.getElementById('record');
+        const toneArm = document.getElementById('toneArm');
+        const hint = document.getElementById('hint');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const audioPlayer = document.getElementById('audioPlayer');
+        
+        let isPlaying = false;
+
+        // 클릭 이벤트
+        record.addEventListener('click', togglePlay);
+
+        function togglePlay() {
+            if (isPlaying) {
+                stopPlayback();
+            } else {
+                startPlayback();
+            }
+        }
+
+        function startPlayback() {
+            isPlaying = true;
+            
+            // 1단계: 톤암 이동 시작
+            toneArm.classList.add('active');
+            statusIndicator.classList.add('active');
+            hint.textContent = 'Loading...';
+            hint.classList.add('loading');
+            
+            // 2단계: 톤암 이동 완료 후 (0.8초) 음악 재생 & LP 회전
+            setTimeout(() => {
+                audioPlayer.play()
+                    .then(() => {
+                        record.classList.add('playing');
+                        hint.textContent = 'Now Playing';
+                        hint.classList.remove('loading');
+                        hint.classList.add('playing');
+                    })
+                    .catch(err => {
+                        console.error('재생 오류:', err);
+                        hint.textContent = 'Playback Error';
+                        stopPlayback();
+                    });
+            }, 800);
+        }
+
+        function stopPlayback() {
+            isPlaying = false;
+            
+            // 1단계: 음악 먼저 페이드아웃 & 정지
+            const fadeOut = setInterval(() => {
+                if (audioPlayer.volume > 0.1) {
+                    audioPlayer.volume -= 0.1;
+                } else {
+                    audioPlayer.volume = 0;
+                    audioPlayer.pause();
+                    audioPlayer.currentTime = 0;
+                    audioPlayer.volume = 1.0; // 볼륨 복원
+                    clearInterval(fadeOut);
+                }
+            }, 50);
+            
+            // 2단계: LP 회전 멈춤
+            record.classList.remove('playing');
+            hint.classList.remove('playing');
+            hint.textContent = 'Stopping...';
+            
+            // 3단계: 톤암 복귀 (0.3초 후)
+            setTimeout(() => {
+                toneArm.classList.remove('active');
+                statusIndicator.classList.remove('active');
+                hint.textContent = 'Click to Play';
+            }, 300);
+        }
+
+        // 음악 종료 시 자동으로 톤암 복귀
+        audioPlayer.addEventListener('ended', () => {
+            if (isPlaying) {
+                stopPlayback();
+            }
+        });
+
+        // 초기 볼륨 설정
+        audioPlayer.volume = 1.0;
+    </script>
+
+</body>
+</html>
