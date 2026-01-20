@@ -284,6 +284,15 @@
                 inset 0 1px 2px rgba(255,255,255,0.3);
         }
 
+        /* YouTube 플레이어 숨김 */
+        #youtube-player {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
         /* 로딩 애니메이션 */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -309,26 +318,67 @@
         <div class="hint" id="hint">Click to Play</div>
     </div>
 
-    <!-- 🎵 오디오 플레이어 (URL을 원하는 음악 파일로 변경하세요) -->
-    <audio id="audioPlayer" preload="auto">
-        <!-- 무료 Lo-Fi 음악 샘플 (저작권 Free) -->
-        <source src="https://youtu.be/YtZLsfQw004?si=pQLUmlB2jmVaCT10" type="audio/mpeg">
-        <!-- 다른 음악으로 변경하려면 위 src 속성의 URL만 교체하면 됩니다 -->
-    </audio>
+    <!-- 🎵 YouTube 플레이어 (숨김 처리) -->
+    <div id="youtube-player"></div>
+
+    <!-- YouTube IFrame API 로드 -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
         const record = document.getElementById('record');
         const toneArm = document.getElementById('toneArm');
         const hint = document.getElementById('hint');
         const statusIndicator = document.getElementById('statusIndicator');
-        const audioPlayer = document.getElementById('audioPlayer');
         
+        let player;
         let isPlaying = false;
+        let isPlayerReady = false;
+
+        // ⭐ 여기에 YouTube 영상 ID를 넣으세요! ⭐
+        // 예: https://www.youtube.com/watch?v=jfKfPfyJRdk 라면
+        // VIDEO_ID = 'jfKfPfyJRdk'
+        const VIDEO_ID = 'jfKfPfyJRdk'; // 기본값: lofi hip hop radio
+
+        // YouTube IFrame API 준비 완료 콜백
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '1',
+                width: '1',
+                videoId: VIDEO_ID,
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'loop': 1,
+                    'playlist': VIDEO_ID
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            isPlayerReady = true;
+            console.log('YouTube Player Ready!');
+        }
+
+        function onPlayerStateChange(event) {
+            // 영상이 끝나면 자동으로 톤암 복귀
+            if (event.data === YT.PlayerState.ENDED) {
+                stopPlayback();
+            }
+        }
 
         // 클릭 이벤트
         record.addEventListener('click', togglePlay);
 
         function togglePlay() {
+            if (!isPlayerReady) {
+                hint.textContent = 'Loading Player...';
+                return;
+            }
+
             if (isPlaying) {
                 stopPlayback();
             } else {
@@ -347,36 +397,27 @@
             
             // 2단계: 톤암 이동 완료 후 (0.8초) 음악 재생 & LP 회전
             setTimeout(() => {
-                audioPlayer.play()
-                    .then(() => {
-                        record.classList.add('playing');
-                        hint.textContent = 'Now Playing';
-                        hint.classList.remove('loading');
-                        hint.classList.add('playing');
-                    })
-                    .catch(err => {
-                        console.error('재생 오류:', err);
-                        hint.textContent = 'Playback Error';
-                        stopPlayback();
-                    });
+                try {
+                    player.playVideo();
+                    record.classList.add('playing');
+                    hint.textContent = 'Now Playing';
+                    hint.classList.remove('loading');
+                    hint.classList.add('playing');
+                } catch (err) {
+                    console.error('재생 오류:', err);
+                    hint.textContent = 'Playback Error';
+                    stopPlayback();
+                }
             }, 800);
         }
 
         function stopPlayback() {
             isPlaying = false;
             
-            // 1단계: 음악 먼저 페이드아웃 & 정지
-            const fadeOut = setInterval(() => {
-                if (audioPlayer.volume > 0.1) {
-                    audioPlayer.volume -= 0.1;
-                } else {
-                    audioPlayer.volume = 0;
-                    audioPlayer.pause();
-                    audioPlayer.currentTime = 0;
-                    audioPlayer.volume = 1.0; // 볼륨 복원
-                    clearInterval(fadeOut);
-                }
-            }, 50);
+            // 1단계: 음악 정지
+            if (player && player.pauseVideo) {
+                player.pauseVideo();
+            }
             
             // 2단계: LP 회전 멈춤
             record.classList.remove('playing');
@@ -390,16 +431,6 @@
                 hint.textContent = 'Click to Play';
             }, 300);
         }
-
-        // 음악 종료 시 자동으로 톤암 복귀
-        audioPlayer.addEventListener('ended', () => {
-            if (isPlaying) {
-                stopPlayback();
-            }
-        });
-
-        // 초기 볼륨 설정
-        audioPlayer.volume = 1.0;
     </script>
 
 </body>
