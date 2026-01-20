@@ -13,13 +13,14 @@
 
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-            overflow: hidden;
+            padding: 20px;
         }
 
         .turntable-container {
@@ -36,9 +37,9 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            margin-bottom: 30px;
         }
 
-        /* 턴테이블 플래터 베이스 */
         .platter-base {
             position: absolute;
             width: 280px;
@@ -50,7 +51,6 @@
                 inset 0 2px 4px rgba(255,255,255,0.03);
         }
 
-        /* LP 바이닐 레코드 */
         .record {
             width: 260px;
             height: 260px;
@@ -83,20 +83,10 @@
                 0 0 0 1px rgba(255,255,255,0.05),
                 0 8px 24px rgba(0,0,0,0.5),
                 inset 0 0 20px rgba(0,0,0,0.3);
-            cursor: pointer;
             transition: all 0.3s ease;
             z-index: 3;
         }
 
-        .record:hover {
-            transform: scale(1.02);
-            box-shadow: 
-                0 0 0 1px rgba(255,255,255,0.08),
-                0 12px 32px rgba(0,0,0,0.6),
-                inset 0 0 20px rgba(0,0,0,0.3);
-        }
-
-        /* LP 미세 홈 텍스처 레이어 */
         .record::before {
             content: '';
             position: absolute;
@@ -115,23 +105,47 @@
             pointer-events: none;
         }
 
-        /* 앨범 커버 라벨 */
+        /* 앨범 아트 영역 (YouTube 영상 표시) */
         .album-art {
             width: 110px;
             height: 110px;
             border-radius: 50%;
-            background-image: url('https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=300&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+            background: #1a1a1a;
             border: 5px solid #1a1a1a;
             box-shadow: 
                 0 4px 12px rgba(0,0,0,0.6),
                 inset 0 2px 4px rgba(0,0,0,0.3);
             position: relative;
             z-index: 4;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* 회전 애니메이션 */
+        /* YouTube iframe */
+        .youtube-player {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: auto;
+            z-index: 1;
+        }
+
+        .album-placeholder {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=300&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -141,7 +155,6 @@
             animation: spin 2.8s linear infinite;
         }
 
-        /* 중앙 스핀들 */
         .spindle {
             position: absolute;
             width: 16px;
@@ -153,9 +166,9 @@
                 inset 0 1px 2px rgba(255,255,255,0.3),
                 inset 0 -1px 2px rgba(0,0,0,0.3);
             z-index: 5;
+            pointer-events: none;
         }
 
-        /* 톤암 (Tone Arm) */
         .tone-arm {
             position: absolute;
             top: 40px;
@@ -177,9 +190,9 @@
                 3px 3px 8px rgba(0,0,0,0.5),
                 inset 1px 1px 2px rgba(255,255,255,0.2),
                 inset -1px -1px 2px rgba(0,0,0,0.3);
+            pointer-events: none;
         }
 
-        /* 톤암 헤드쉘 */
         .tone-arm::after {
             content: '';
             position: absolute;
@@ -195,7 +208,6 @@
                 inset 1px 1px 2px rgba(255,255,255,0.05);
         }
 
-        /* 톤암 바늘 포인트 */
         .tone-arm::before {
             content: '';
             position: absolute;
@@ -213,7 +225,6 @@
             transform: rotate(22deg);
         }
 
-        /* 톤암 피봇 베이스 */
         .tone-arm-base {
             position: absolute;
             top: 30px;
@@ -226,6 +237,7 @@
                 0 4px 10px rgba(0,0,0,0.5),
                 inset 0 2px 4px rgba(255,255,255,0.05);
             z-index: 9;
+            pointer-events: none;
         }
 
         .tone-arm-base::after {
@@ -241,7 +253,6 @@
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
         }
 
-        /* 안내 문구 */
         .hint {
             position: absolute;
             bottom: 20px;
@@ -251,6 +262,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             letter-spacing: 0.5px;
+            pointer-events: none;
         }
 
         .turntable-container:hover .hint {
@@ -261,7 +273,6 @@
             color: #d4af37;
         }
 
-        /* 상태 인디케이터 */
         .status-indicator {
             position: absolute;
             top: 20px;
@@ -274,6 +285,7 @@
                 0 0 10px rgba(68,68,68,0.3),
                 inset 0 1px 2px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
+            pointer-events: none;
         }
 
         .status-indicator.active {
@@ -284,16 +296,6 @@
                 inset 0 1px 2px rgba(255,255,255,0.3);
         }
 
-        /* YouTube 플레이어 숨김 */
-        #youtube-player {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* 로딩 애니메이션 */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -301,6 +303,98 @@
 
         .loading {
             animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* URL 입력 컨트롤 */
+        .control-panel {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .url-input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+        }
+
+        .url-input::placeholder {
+            color: #666;
+        }
+
+        .play-button {
+            padding: 14px 32px;
+            background: linear-gradient(145deg, #d4af37, #c9a944);
+            border: none;
+            border-radius: 10px;
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 12px rgba(212,175,55,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .play-button:hover {
+            background: linear-gradient(145deg, #e8c766, #d4af37);
+            box-shadow: 
+                0 6px 16px rgba(212,175,55,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+
+        .play-button:active {
+            transform: translateY(0);
+            box-shadow: 
+                0 2px 8px rgba(212,175,55,0.3),
+                inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .error-message {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: rgba(255,59,48,0.1);
+            border: 1px solid rgba(255,59,48,0.3);
+            border-radius: 8px;
+            color: #ff6b6b;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .info-text {
+            margin-top: 12px;
+            color: #888;
+            font-size: 12px;
+            text-align: center;
         }
     </style>
 </head>
@@ -310,127 +404,169 @@
         <div class="status-indicator" id="statusIndicator"></div>
         <div class="platter-base"></div>
         <div class="record" id="record">
-            <div class="album-art"></div>
+            <div class="album-art" id="albumArt">
+                <div class="album-placeholder" id="placeholder"></div>
+            </div>
             <div class="spindle"></div>
         </div>
         <div class="tone-arm-base"></div>
         <div class="tone-arm" id="toneArm"></div>
-        <div class="hint" id="hint">Click to Play</div>
+        <div class="hint" id="hint">Enter YouTube URL</div>
     </div>
 
-    <!-- 🎵 YouTube 플레이어 (숨김 처리) -->
-    <div id="youtube-player"></div>
-
-    <!-- YouTube IFrame API 로드 -->
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <div class="control-panel">
+        <div class="input-group">
+            <input 
+                type="text" 
+                id="urlInput" 
+                class="url-input" 
+                placeholder="YouTube URL 또는 Video ID를 입력하세요 (예: https://youtube.com/watch?v=...)"
+            >
+            <button id="playButton" class="play-button">Load</button>
+        </div>
+        <div id="errorMessage" class="error-message"></div>
+        <div class="info-text">
+            YouTube URL, Shorts, 또는 Video ID만 입력해도 됩니다
+        </div>
+    </div>
 
     <script>
         const record = document.getElementById('record');
         const toneArm = document.getElementById('toneArm');
         const hint = document.getElementById('hint');
         const statusIndicator = document.getElementById('statusIndicator');
+        const urlInput = document.getElementById('urlInput');
+        const playButton = document.getElementById('playButton');
+        const errorMessage = document.getElementById('errorMessage');
+        const albumArt = document.getElementById('albumArt');
+        const placeholder = document.getElementById('placeholder');
         
-        let player;
-        let isPlaying = false;
-        let isPlayerReady = false;
+        let currentIframe = null;
+        let isLoaded = false;
 
-        // ⭐ 여기에 YouTube 영상 ID를 넣으세요! ⭐
-        // 예: https://www.youtube.com/watch?v=jfKfPfyJRdk 라면
-        // VIDEO_ID = 'jfKfPfyJRdk'
-        const VIDEO_ID = 'jfKfPfyJRdk'; // 기본값: lofi hip hop radio
-
-        // YouTube IFrame API 준비 완료 콜백
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('youtube-player', {
-                height: '1',
-                width: '1',
-                videoId: VIDEO_ID,
-                playerVars: {
-                    'autoplay': 0,
-                    'controls': 0,
-                    'loop': 1,
-                    'playlist': VIDEO_ID
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            isPlayerReady = true;
-            console.log('YouTube Player Ready!');
-        }
-
-        function onPlayerStateChange(event) {
-            // 영상이 끝나면 자동으로 톤암 복귀
-            if (event.data === YT.PlayerState.ENDED) {
-                stopPlayback();
+        // YouTube URL에서 Video ID 추출
+        function extractVideoId(input) {
+            if (!input) return null;
+            
+            input = input.trim();
+            
+            // 이미 Video ID만 입력된 경우 (11자)
+            if (input.length === 11 && /^[a-zA-Z0-9_-]+$/.test(input)) {
+                return input;
             }
+            
+            // 다양한 YouTube URL 형식 지원
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/,
+                /v=([a-zA-Z0-9_-]{11})/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = input.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            
+            return null;
         }
 
-        // 클릭 이벤트
-        record.addEventListener('click', togglePlay);
+        // 오류 메시지 표시
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 4000);
+        }
 
-        function togglePlay() {
-            if (!isPlayerReady) {
-                hint.textContent = 'Loading Player...';
+        // Load 버튼 클릭
+        playButton.addEventListener('click', () => {
+            const input = urlInput.value;
+            const videoId = extractVideoId(input);
+            
+            if (!videoId) {
+                showError('올바른 YouTube URL 또는 Video ID를 입력해주세요.');
                 return;
             }
-
-            if (isPlaying) {
-                stopPlayback();
-            } else {
-                startPlayback();
-            }
-        }
-
-        function startPlayback() {
-            isPlaying = true;
             
-            // 1단계: 톤암 이동 시작
-            toneArm.classList.add('active');
-            statusIndicator.classList.add('active');
+            loadVideo(videoId);
+        });
+
+        // Enter 키로도 실행
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                playButton.click();
+            }
+        });
+
+        // 영상 로드
+        function loadVideo(videoId) {
+            console.log('Loading video:', videoId);
+            
+            // 기존 iframe 제거
+            if (currentIframe) {
+                currentIframe.remove();
+                currentIframe = null;
+            }
+
+            // Placeholder 숨기기
+            placeholder.style.display = 'none';
+            
             hint.textContent = 'Loading...';
             hint.classList.add('loading');
+
+            // 새 iframe 생성
+            currentIframe = document.createElement('iframe');
+            currentIframe.className = 'youtube-player';
             
-            // 2단계: 톤암 이동 완료 후 (0.8초) 음악 재생 & LP 회전
+            // YouTube embed URL with autoplay
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=1&modestbranding=1`;
+            console.log('Embed URL:', embedUrl);
+            
+            currentIframe.src = embedUrl;
+            currentIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+            currentIframe.allowFullscreen = true;
+            currentIframe.loading = 'eager';
+
+            // iframe을 앨범 아트에 추가
+            albumArt.appendChild(currentIframe);
+            console.log('Iframe added to DOM');
+
+            // iframe 로드 완료 확인
+            currentIframe.onload = function() {
+                console.log('Iframe loaded successfully');
+                hint.classList.remove('loading');
+            };
+
+            currentIframe.onerror = function(e) {
+                console.error('Iframe load error:', e);
+                showError('영상 로드에 실패했습니다.');
+                hint.textContent = 'Load Failed';
+                hint.classList.remove('loading');
+            };
+
+            // 애니메이션 시작
             setTimeout(() => {
-                try {
-                    player.playVideo();
-                    record.classList.add('playing');
-                    hint.textContent = 'Now Playing';
-                    hint.classList.remove('loading');
-                    hint.classList.add('playing');
-                } catch (err) {
-                    console.error('재생 오류:', err);
-                    hint.textContent = 'Playback Error';
-                    stopPlayback();
-                }
+                toneArm.classList.add('active');
+                statusIndicator.classList.add('active');
+                record.classList.add('playing');
+                hint.textContent = 'Now Playing';
+                hint.classList.add('playing');
+                playButton.textContent = 'Loaded';
+                isLoaded = true;
             }, 800);
         }
 
-        function stopPlayback() {
-            isPlaying = false;
-            
-            // 1단계: 음악 정지
-            if (player && player.pauseVideo) {
-                player.pauseVideo();
+        // 레코드 클릭 이벤트 제거 (YouTube 컨트롤을 직접 사용)
+        record.addEventListener('click', (e) => {
+            // 클릭이 YouTube iframe 영역이면 무시
+            if (e.target.closest('.album-art')) {
+                return;
             }
-            
-            // 2단계: LP 회전 멈춤
-            record.classList.remove('playing');
-            hint.classList.remove('playing');
-            hint.textContent = 'Stopping...';
-            
-            // 3단계: 톤암 복귀 (0.3초 후)
-            setTimeout(() => {
-                toneArm.classList.remove('active');
-                statusIndicator.classList.remove('active');
-                hint.textContent = 'Click to Play';
-            }, 300);
-        }
+        });
     </script>
 
 </body>
